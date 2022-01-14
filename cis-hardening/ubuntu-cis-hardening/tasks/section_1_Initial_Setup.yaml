@@ -1,0 +1,978 @@
+---
+# 1.1.1 Disable unused filesystems
+# 1.1.1.1 Ensure mounting of cramfs filesystems is disabled
+# Removing support for unneeded filesystem types reduces the local attack surface of the
+# server. If this filesystem type is not needed, disable it.
+- name: 1.1.1.1 Ensure mounting of cramfs filesystems is disabled
+  block:
+    - name: 1.1.1.1 Ensure mounting of cramfs filesystems is disabled
+      lineinfile:
+        dest: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install cramfs(\\s|$)"
+        line: "install cramfs /bin/true"
+        state: present
+        owner: root
+        group: root
+        mode: 0644
+        create: true
+    - name: 1.1.1.1 Ensure mounting of cramfs filesystems is disabled | modprobe
+      modprobe:
+        name: cramfs
+        state: absent
+  when: disable_cramfs
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.1.1
+    - filesystems
+    - cramfs
+    - modprobe
+# 1.1.1.2 Ensure mounting of freevxfs filesystems is disabled
+# The freevxfs filesystem type is a free version of the Veritas type filesystem. This is the
+# primary filesystem type for HP-UX operating systems.
+- name: 1.1.1.2 Ensure mounting of freevxfs filesystems is disabled
+  block:
+    - name: 1.1.1.2 Ensure mounting of freevxfs filesystems is disabled
+      lineinfile:
+        dest: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install freevxfs"
+        line: "install freevxfs /bin/true"
+        state: present
+        create: true
+    - name: 1.1.1.2 Ensure mounting of freevxfs filesystems is disabled | modprobe
+      modprobe:
+        name: freevxfs
+        state: absent
+  when: disable_freevxfs
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.1.2
+    - filesystems
+    - freevxfs
+    - modprobe
+# 1.1.1.3 Ensure mounting of jffs2 filesystems is disabled
+# The jffs2 (journaling flash filesystem 2) filesystem type is a log-structured filesystem used
+# in flash memory devices.
+- name: 1.1.1.3 Ensure mounting of jffs2 filesystems is disabled
+  block:
+    - name: 1.1.1.3 Ensure mounting of jffs2 filesystems is disabled
+      lineinfile:
+        dest: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install jffs2(\\s|$)"
+        line: "install jffs2 /bin/true"
+        state: present
+        create: true
+    - name: 1.1.1.3 Ensure mounting of jffs2 filesystems is disabled
+      modprobe:
+        name: jffs2
+        state: absent
+  when: disable_jffs2
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.1.3
+    - filesystems
+    - jffs2
+    - modprobe
+# 1.1.1.4 Ensure mounting of hfs filesystems is disabled
+# The hfs filesystem type is a hierarchical filesystem that allows you to mount Mac OS
+# filesystems.
+- name: 1.1.1.4 Ensure mounting of hfs filesystems is disabled
+  block:
+    - name: 1.1.1.4 Ensure mounting of hfs filesystems is disabled
+      lineinfile:
+        dest: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install hfs(\\s|$)"
+        line: "install hfs /bin/true"
+        state: present
+        create: true
+    - name: 1.1.1.4 Ensure mounting of hfs filesystems is disabled | modprobe
+      modprobe:
+        name: hfs
+        state: absent
+  when: disable_hfs
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.1.4
+    - filesystems
+    - modprobe
+    - hfs
+# 1.1.1.5 Ensure mounting of hfsplus filesystems is disabled
+# The hfsplus filesystem type is a hierarchical filesystem designed to replace hfs that allows
+# you to mount Mac OS filesystems.
+- name: 1.1.1.5 Ensure mounting of hfsplus filesystems is disabled
+  block:
+    - name: 1.1.1.5 Ensure mounting of hfsplus filesystems is disabled
+      lineinfile:
+        dest: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install hfsplus(\\s|$)"
+        line: "install hfsplus /bin/true"
+        state: present
+        create: true
+    - name: 1.1.1.5 Ensure mounting of hfsplus filesystems is disabled | modprobe
+      modprobe:
+        name: hfsplus
+        state: absent
+  when: disable_hfsplus
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.1.5
+    - filesystems
+    - hfsplus
+    - modprobe
+# 1.1.1.6 Ensure mounting of udf filesystems is disabled
+# The udf filesystem type is the universal disk format used to implement ISO/IEC 13346 and
+# ECMA-167 specifications. This is an open vendor filesystem type for data storage on a
+# broad range of media. This filesystem type is necessary to support writing DVDs and newer
+# optical disc formats.
+- name: 1.1.1.6 Ensure mounting of udf filesystems is disabled
+  block:
+    - name: 1.1.1.6 Ensure mounting of udf filesystems is disabled
+      lineinfile:
+        dest: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install udf(\\s|$)"
+        line: "install udf /bin/true"
+        state: present
+        create: true
+    - name: 1.1.1.6 Ensure mounting of udf filesystems is disabled | modprobe
+      modprobe:
+        name: udf
+        state: absent
+  when: disable_udf
+  tags:
+    - section1
+    - level_1_server    - level_1_workstation
+    - 1.1.1.6
+    - filesystems
+    - udf
+    - modprobe
+# 1.1.1.7 Ensure mounting of FAT filesystems is limited
+# The FAT filesystem format is primarily used on older windows systems and portable USB
+# drives or flash modules. It comes in three types FAT12 , FAT16 , and FAT32 all of which are
+# supported by the vfat kernel module.
+#Note:
+# The FAT filesystem format is used by UEFI systems for the EFI boot partition. Disabling the
+# vfat module can prevent boot on UEFI systems.
+- name: 1.1.1.7 Ensure mounting of FAT filesystems is limited
+  block:
+    - name: 1.1.1.7 Ensure mounting of FAT filesystems is limited
+      lineinfile:
+        dest: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install vfat(\\s|$)"
+        line: "install vfat /bin/true"
+        state: present
+        create: true
+    #- name: 1.1.1.7 Ensure mounting of FAT filesystems is limited | modprobe
+    #  modprobe:
+    #    name: vfat
+    #    state: absent
+  when: disable_fat
+  tags:
+    - section1
+    - level_2_server
+    - level_2_workstation
+    - 1.1.1.7
+    - filesystems
+    - fat
+    - modprobe
+#
+# 1.1.2 Ensure /tmp is configured
+# The /tmp directory is a world-writable directory used for temporary storage by all users
+# and some applications.
+# Notes:
+# If an entry for /tmp exists in /etc/fstab it will take precedence over entries in the
+# tmp.mount file.
+# tmpfs can be resized using the size={size} parameter in /etc/fstab or on the Options
+# line in the tmp.mount file. If we don't specify the size, it will be half the RAM.
+- name: 1.1.2 Ensure /tmp is configured\n"
+    1.1.3 Ensure nodev option set on /tmp partition\n
+    1.1.4 Ensure nosuid option set on /tmp partition\n
+    1.1.5 Ensure noexec option set on /tmp partition
+  block:
+    - name: 1.1.2 Ensure /tmp is configured
+      copy:
+        src: /usr/share/systemd/tmp.mount
+        dest: /etc/systemd/system/tmp.mount
+        owner: root
+        group: root
+        mode: 0644
+        force: true
+        remote_src: true
+    - name: 1.1.2 Ensure /tmp is configured | edit file
+      lineinfile:
+        dest: /etc/systemd/system/tmp.mount
+        regexp: "^Options=mode="
+        line: "Options=mode=1777,strictatime,nosuid,nodev,noexec,size={{ temp_dir_size }}"
+    - name: 1.1.2 Ensure /tmp is configured | reload demon
+      systemd:
+        daemon_reload: yes
+    - name: 1.1.2 Ensure /tmp is configured | enable and start tmp.mount
+      systemd:
+        name: tmp.mount
+        enabled: yes
+        masked: no
+        state: started
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.2
+    - tmp
+    - mount
+# 1.1.6 Ensure /dev/shm is configured
+# 1.1.7 Ensure nodev option set on /dev/shm partition
+# 1.1.8 Ensure nosuid option set on /dev/shm partition
+# 1.1.9 Ensure noexec option set on /dev/shm partition
+# /dev/shm is a traditional shared memory concept. One program will create a memory
+# portion, which other processes (if permitted) can access. Mounting tmpfs at /dev/shm is
+# handled automatically by systemd.
+- name: 1.1.6 Ensure /dev/shm is configured
+    1.1.7 Ensure nodev option set on /dev/shm partition
+    1.1.8 Ensure nosuid option set on /dev/shm partition
+    1.1.9 Ensure noexec option set on /dev/shm partition
+  mount:
+    name: /dev/shm
+    src: tmpfs
+    state: mounted
+    fstype: tmpfs
+    opts: "defaults,nodev,nosuid,noexec"
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.6
+    - 1.1.7
+    - 1.1.8
+    - 1.1.9
+    - mount
+    - shm
+# 1.1.10 Ensure separate partition exists for /var
+# The /var directory is used by daemons and other system services to temporarily store
+# dynamic data. Some directories created by these processes may be world-writable.
+# Note: When modifying /var it is advisable to bring the system to emergency mode (so auditd
+# is not running), rename the existing directory, mount the new file system, and migrate the
+# data over before returning to multiuser mode.
+- name: 1.1.10 Ensure separate partition exists for /var
+  debug:
+    msg: |-
+      during setup step
+      For new installations, during installation create a custom partition setup and specify a
+      separate partition for /var .
+      For systems that were previously installed, create a new partition and configure
+      /etc/fstab as appropriate.
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.10
+    - diy
+# 1.1.11 Ensure separate partition exists for /var/tmp
+# 1.1.12 Ensure nodev option set on /var/tmp partition
+# 1.1.13 Ensure nosuid option set on /var/tmp partition
+# 1.1.14 Ensure noexec option set on /var/tmp partition
+# The /var/tmp directory is a world-writable directory used for temporary storage by all
+# users and some applications.
+- name: 1.1.12 Ensure nodev option set on /var/tmp partition
+    1.1.13 Ensure nosuid option set on /var/tmp partition\n
+    1.1.14 Ensure noexec option set on /var/tmp partition"
+  block:
+    - name: 1.1.12 Ensure nodev option set on /var/tmp partitions
+      shell: |
+        mount | grep "on /var/tmp" && true || true
+      register: vartemp
+    - name: /var/tmp partitions
+      debug:
+        msg: "{{ vartemp.stdout_lines }}"
+  tags:
+    - section1
+    - level_2_server
+    - level_2_workstation
+    - 1.1.11
+    - 1.1.12
+    - 1.1.13
+    - 1.1.14
+    - mount
+    - tmp
+# 1.1.15 Ensure separate partition exists for /var/log
+- name: 1.1.15 Ensure separate partition exists for /var/log
+  debug:
+    msg: For new installations, during installation create a custom partition setup and specify a separate partition
+  tags:
+    - section1
+    - level_2_server
+    - level_2_workstation
+    - 1.1.15
+    - diy
+# 1.1.16 Ensure separate partition exists for /var/log/audit
+- name: 1.1.16 Ensure separate partition exists for /var/log/audit
+  debug:
+    msg: For new installations, during installation create a custom partition setup and specify a separate partition
+  tags:
+    - section1
+    - level_6_server
+    - level_6_workstation
+    - 1.1.16
+    - diy
+# 1.1.17 Ensure separate partition exists for /home
+- name: 1.1.17 Ensure separate partition exists for /home
+  debug:
+    msg: For new installations, during installation create a custom partition setup and specify a separate partition
+  tags:
+    - section1
+    - level_2_server
+    - level_2_workstation
+    - 1.1.17
+    - diy
+# 1.1.18 Ensure nodev option set on /home partition
+- name: 1.1.18 Ensure nodev option set on /home partition
+  debug:
+    msg: For new installations, during installation create a custom partition setup and specify a separate partition
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.18
+    - diy
+# 1.1.19 Ensure nodev option set on removable media partitions
+- name: 1.1.19 Ensure nodev option set on removable media partitions
+  debug:
+    msg: For new installations, during installation create a custom partition setup and specify a separate partition
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.19
+    - diy
+# 1.1.20 Ensure nosuid option set on removable media partitions
+- name: 1.1.20 Ensure nosuid option set on removable media partitions
+  debug:
+    msg: For new installations, during installation create a custom partition setup and specify a separate partition
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.20
+    - diy
+# 1.1.21 Ensure noexec option set on removable media partitions
+- name: 1.1.21 Ensure noexec option set on removable media partitions
+  debug:
+    msg: For new installations, during installation create a custom partition setup and specify a separate partition
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.21
+    - diy
+# 1.1.22 Ensure sticky bit is set on all world-writable directories
+- name: 1.1.22 Ensure sticky bit is set on all world-writable directories
+  block:
+    - name: 1.1.22 Ensure sticky bit is set on all world-writable directories | get info
+      shell: |
+        df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) 2>/dev/null
+      register: worldWriteableList
+    - name: 1.1.22 Ensure sticky bit is set on all world-writable directories | fix
+      script: 1_1_22.sh
+      when: worldWriteableList.stdout_lines |length > 0
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.1.22
+# 1.1.23 Disable Automounting
+# autofs allows automatic mounting of devices, typically including CD/DVDs and USB drives.
+# Note: This control should align with the tolerance of the use of portable drives and optical
+# media in the organization. On a server requiring an admin to manually mount media can be
+# part of defense-in-depth to reduce the risk of unapproved software or information being
+# introduced or proprietary software or information being exfiltrated. If admins commonly use
+# flash drives and Server access has sufficient physical controls, requiring manual mounting
+# may not increase security.
+- name: 1.1.23 Disable Automounting
+  block:
+    - name: 1.1.23 Disable Automounting | service disable
+      service:
+        name: autofs
+        enabled: false
+      ignore_errors: yes
+    - name: 1.1.23 Disable Automounting | package remove
+      apt:
+        name: autofs
+        state: absent
+  when: disable_autofs
+  tags:
+    - section1
+    - level_1_server
+    - level_2_workstation
+    - 1.1.23
+# 1.1.24 Disable USB Storage
+# USB storage provides a means to transfer and store files insuring persistence and
+# availability of the files independent of network connection status. Its popularity and utility
+# has led to USB-based malware being a simple and common means for network infiltration
+# and a first step to establishing a persistent threat within a networked environment.
+# Note: An alternative solution to disabling the usb-storage module may be found in USBGuard.
+# Use of USBGuard and construction of USB device policies should be done in alignment with
+# site policy.
+- name: 1.1.24 Disable USB Storage
+  block:
+    - name: 1.1.24 Disable USB Storage | modprobe
+      lineinfile:
+        dest: /etc/modprobe.d/CIS.conf
+        regexp: "^(#)?install usb-storage(\\s|$)"
+        line: "install usb-storage /bin/true"
+        state: present
+        create: true
+    - name: 1.1.24 Disable USB Storage
+      modprobe:
+        name: usb-storage
+        state: absent
+  when: disable_usb
+  tags:
+    - section1
+    - level_1_server
+    - level_2_workstation
+    - 1.1.24
+# 1.2 Configure Software Updates
+# For the purpose of this benchmark, the requirement is to ensure that a patch management
+# system is configured and maintained. The specifics on patch update procedures are left to
+# the organization.
+# 1.2.1 Ensure package manager repositories are configured
+# Systems need to have package manager repositories configured to ensure they receive the
+# latest patches and updates.
+- name: 1.2.1 Ensure package manager repositories are configured
+  debug:
+    msg: |
+      Run the following command and verify package repositories are configured correctly
+      > apt-cache policy
+      Remediation:
+      Configure your package manager repositories according to site policy
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.2.1
+# 1.2.2 Ensure GPG keys are configured
+# Most packages managers implement GPG key signing to verify package integrity during installation.
+# It is important to ensure that updates are obtained from a valid source to protect against
+# spoofing that could lead to the inadvertent installation of malware on the system
+- name: 1.2.2 Ensure GPG keys are configured
+  debug:
+    msg: |
+      Audit:
+      Verify GPG keys are configured correctly for your package manager:
+      > apt-key list
+      Remediation:
+      Update your package manager GPG keys in accordance with site policy.
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.2.2
+    - diy
+# 1.3 Configure sudo
+# sudo allows a permitted user to execute a command as the superuser or another user, as
+# specified by the security policy. The invoking user's real (not effective) user ID is used to
+# determine the user name with which to query the security policy.
+# sudo supports a plugin architecture for security policies and input/output logging. Third
+# parties can develop and distribute their own policy and I/O logging plugins to work
+# seamlessly with the sudo front end. The default security policy is sudoers, which is
+# configured via the file /etc/sudoers.
+# 1.3.1 Ensure sudo is installed
+- name: 1.3.1 Ensure sudo is installed
+  apt:
+    name: sudo
+    state: present
+    install_recommends: false
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.3.1
+# 1.3.2 Ensure sudo commands use pty
+# sudo can be configured to run only from a pseudo-pty
+# Note: visudo edits the sudoers file in a safe fashion, analogous to vipw(8). visudo locks the
+# sudoers file against multiple simultaneous edits, provides basic sanity checks, and checks or
+# parse errors. If the sudoers file is currently being edited you will receive a message to try
+# again later.
+- name: 1.3.2 Ensure sudo commands use pty
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: "^Defaults use_pty"
+    line: "Defaults use_pty"
+    validate: "visudo -cf %s"
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.3.2
+# 1.3.3 Ensure sudo log file exists
+# sudo can use a custom log file.
+# Note: visudo edits the sudoers file in a safe fashion, analogous to vipw(8). visudo locks the
+# sudoers file against multiple simultaneous edits, provides basic sanity checks, and checks or
+# parse errors. If the sudoers file is currently being edited you will receive a message to try
+# again later.
+- name: 1.3.3 Ensure sudo log file exists
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: "^Defaults logfile.*"
+    line: 'Defaults logfile="/var/log/sudo.log"'
+    validate: "visudo -cf %s"
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.3.3
+# 1.4 Filesystem Integrity Checking
+# AIDE is a file integrity checking tool, similar in nature to Tripwire. While it cannot prevent
+# intrusions, it can detect unauthorized changes to configuration files by alerting when the
+# files are changed. When setting up AIDE, decide internally what the site policy will be
+# concerning integrity checking. Review the AIDE quick start guide and AIDE documentation
+# before proceeding.
+# 1.4.1 Ensure AIDE is installed
+# AIDE takes a snapshot of filesystem state including modification times, permissions, and
+# file hashes which can then be used to compare against the current state of the filesystem to
+# detect modifications to the system.
+# Note: The prelinking feature can interfere with AIDE because it alters binaries to speed up
+# their start up times. Run prelink -ua to restore the binaries to their prelinked state, thus
+# avoiding false positives from AIDE.
+- name: 1.4.1 Ensure AIDE is installed
+  block:
+    - name: 1.4.1 Ensure AIDE is installed
+      apt:
+        name: ["nullmailer", "aide-common", "aide"]
+        state: present
+        install_recommends: false
+    - name: Configure default AIDE excludes file
+      copy:
+        src: "files/1.4.1.txt"
+        dest: "/etc/aide/aide.conf.d/00_local_excludes"
+    - name: Simplify AIDE checksums
+      lineinfile:
+        regexp: '^Checksums.*='
+        line: "Checksums = {{ aide_checksums }}"
+        path: "/etc/aide/aide.conf"
+        state: present
+      when: (aide_checksums is defined) and (aide_checksums| length > 0)
+    - name: Add extra AIDE exclude paths
+      lineinfile:
+        line: "{{ item }}"
+        path: "/etc/aide/aide.conf.d/00_local_excludes"
+        state: present
+      loop: "{{ aide_exclude_paths }}"
+      when: (aide_exclude_paths is defined) and (aide_exclude_paths| length > 0)
+    - name: Configure AIDE as appropriate for your environment | aideinit
+      command: aideinit --yes --force
+    - name: Configure AIDE as appropriate for your environment | aideinit db
+      shell: |
+        mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.4.1
+# 1.4.2 Ensure filesystem integrity is regularly checked
+# Periodic checking of the filesystem integrity is needed to detect changes to the filesystem.
+# Notes:
+# The checking in this recommendation occurs every day at 5am. Alter the frequency and
+# time of the checks in compliance with site policy
+# systemd timers, timer file aidecheck.timer and service file aidecheck.service , have
+# been included as an optional alternative to using cron
+# Ubuntu advises using /usr/bin/aide.wrapper rather than calling /usr/bin/aide
+# directly in order to protect the database and prevent conflicts
+- name: 1.4.2 Ensure filesystem integrity is regularly checked | Cron
+  cron:
+    name: Run AIDE integrity check weekly
+    user: root
+    minute: "0"
+    hour: "5"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    job: "/usr/bin/aide.wrapper --config /etc/aide/aide.conf --check"
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.4.2
+# 1.5 Secure Boot Settings
+# The recommendations in this section focus on securing the bootloader and settings
+# involved in the boot process directly.
+# 1.5.1 Ensure bootloader password is set
+# Setting the boot loader password will require that anyone rebooting the system must enter
+# a password before being able to set command line boot parameters
+# Note: This recommendation is designed around the grub bootloader, if LILO or another
+# bootloader is in use in your environment enact equivalent settings. Replace
+# /boot/grub/grub.cfg with the appropriate grub configuration file for your environment.
+- name: 1.5.1 Ensure bootloader password is set
+  block:
+    - name: 1.5.1 Ensure bootloader password is set - step 1 - check if it isn't already set up
+      shell: /bin/grep -e "^[\s]*password" /boot/grub/grub.cfg | /usr/bin/awk '{print} END {if (NR == 0) print "continue" ; else print "stop"}'
+      register: result
+      ignore_errors: true
+
+    - name: 1.5.1 Ensure bootloader password is set - step 2 - create bootloader password hash
+      # bash -c must be used in this strange way or mysterious errors are thrown
+      shell: /bin/bash -c "echo -e '{{ bootloader_credentials.password }}\n{{ bootloader_credentials.password }}' | grub-mkpasswd-pbkdf2" | /bin/grep 'hash of your password' | /usr/bin/awk '{print $7}'
+      register: password
+      when:
+        - result.stdout == "continue"
+        - bootloader_credentials.user
+        - bootloader_credentials.password
+
+    - name: 1.5.1 Ensure bootloader password is set - step 3 - create custom grub configuration file
+      blockinfile:
+        dest: /etc/grub.d/99_custom
+        create: yes
+        mode: 0700
+        block: |
+          #!/bin/sh
+          cat <<EOF
+          set superusers='{{ bootloader_credentials.user }}'
+          password_pbkdf2 {{ bootloader_credentials.user }} {{ password.stdout }}
+          EOF
+        state: present
+      when:
+        - result.stdout == "continue"
+        - bootloader_credentials.user
+        - bootloader_credentials.password
+
+    - name: 1.5.1 Ensure bootloader password is set - step 4 - update grub
+      shell: update-grub
+      when:
+        - result.stdout == "continue"
+        - bootloader_credentials.user
+        - bootloader_credentials.password
+
+    - name: 1.5.1 adding unrestricted so it will boot but cannot be edited without password - step 5 - edit 10_custom
+      lineinfile:
+        dest: /etc/grub.d/10_linux
+        mode: 0700
+        line: 'CLASS="--class gnu-linux --class gnu --class os --unrestricted"'
+        regexp: '^CLASS.*$'
+        state: present
+      ignore_errors: true
+      when:
+        - result.stdout == "continue"
+        - bootloader_credentials.user
+        - bootloader_credentials.password
+
+    - name: 1.5.1 Rerun update-grub to adopt new change- step 6 - update grub again
+      shell: update-grub
+      when:
+        - result.stdout == "continue"
+        - bootloader_credentials.user
+        - bootloader_credentials.password
+  when: set_bootloader_credentials
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.5.1
+
+# 1.5.2 Ensure permissions on bootloader config are configured
+# The grub configuration file contains information on boot settings and passwords for
+# unlocking boot options. The grub configuration is usually grub.cfg stored in /boot/grub/ .
+# Note: This recommendation is designed around the grub bootloader, if LILO or another
+# bootloader is in use in your environment enact equivalent settings. Replace
+# /boot/grub/grub.cfg with the appropriate grub configuration file for your environment
+- name: 1.5.2 Ensure permissions on bootloader config are configured
+  file:
+    path: "/boot/grub/grub.cfg"
+    owner: root
+    group: root
+    mode: "og-rwx"
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.5.2
+# 1.5.3 Ensure authentication required for single user mode
+# Single user mode is used for recovery when the system detects an issue during boot or by
+# manual selection from the bootloader.
+- name: 1.5.3 Ensure authentication required for single user mode
+  block:
+    - name: 1.5.3 Ensure authentication required for single user mode - check if a root password already exists
+      shell: /bin/grep -e "^root:[\*]:" /etc/shadow | /usr/bin/awk 'END {if (NR != 0) print "continue" ; else print "stop"}'
+      register: result
+      ignore_errors: true
+
+    - name: 1.5.3 Ensure authentication required for single user mode - create a root password
+      # bash must be used or mysterious errors are thrown
+      shell: /bin/bash -c "echo -e '{{ root_password }}\n{{ root_password }}' | passwd root"
+      when: result.stdout == "continue"
+  when: set_root_password and root_password
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.5.3
+# 1.6 Additional Process Hardening
+# 1.6.1 Ensure XD/NX support is enabled
+# Recent processors in the x86 family support the ability to prevent code execution on a per
+# memory page basis. Generically and on AMD processors, this ability is called No Execute
+# (NX), while on Intel processors it is called Execute Disable (XD). This ability can help
+# prevent exploitation of buffer overflow vulnerabilities and should be activated whenever
+# possible. Extra steps must be taken to ensure that this protection is enabled, particularly on
+# 32-bit x86 systems. Other processors, such as Itanium and POWER, have included such
+# support since inception and the standard kernel for those platforms supports the feature.
+# Note: Ensure your system supports the XD or NX bit and has PAE support before implementing
+# this recommendation as this may prevent it from booting if these are not supported by your
+# hardware
+- name: 1.6.1 Ensure XD/NX support is enabled
+  block:
+    - name: 1.6.1 Ensure XD/NX support is enabled
+      shell: |
+        dmesg | grep -E "NX|XD" | grep " active"
+      register: xdnx
+      ignore_errors: yes
+    - name: 1.6.1 Ensure XD/NX support is enabled
+      debug:
+        msg: |
+          On 32 bit systems install a kernel with PAE support, no installation is required on 64 bit
+          systems:
+          If necessary configure your bootloader to load the new kernel and reboot the system.
+          You may need to enable NX or XD support in your bios.
+          {{ xdnx.stdout_lines }}
+      ignore_errors: yes
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.6.1
+# 1.6.2 Ensure address space layout randomization (ASLR) is enabled
+# Address space layout randomization (ASLR) is an exploit mitigation technique which
+# randomly arranges the address space of key data areas of a process.
+- name: 1.6.2 Ensure address space layout randomization (ASLR) is enabled
+  sysctl:
+    name: kernel.randomize_va_space
+    value: "2"
+    state: present
+    reload: true
+    sysctl_set: true
+    ignoreerrors: true
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.6.2
+# 1.6.3 Ensure prelink is disabled
+- name: 1.6.3 Ensure prelink is disabled
+  block:
+    - name: 1.6.3 Ensure prelink is disabled
+      command: prelink -ua
+      ignore_errors: yes
+    - name: 1.6.3 Ensure prelink is disabled
+      apt:
+        name: prelink
+        state: absent
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.6.3
+# 1.6.4 Ensure core dumps are restricted
+# A core dump is the memory of an executable program. It is generally used to determine
+# why a program aborted. It can also be used to glean confidential information from a core
+# file. The system provides the ability to set a soft limit for core dumps, but this can be
+# overridden by the user.
+- name: 1.6.4 Ensure core dumps are restricted
+  block:
+    - name: 1.6.4 Ensure core dumps are restricted | sysctl
+      sysctl:
+        name: fs.suid_dumpable
+        value: "0"
+        state: present
+        reload: true
+        sysctl_set: true
+        ignoreerrors: true
+    - name: 1.6.4 Ensure core dumps are restricted | limits.conf
+      lineinfile:
+        dest: /etc/security/limits.conf
+        line: "*                hard    core            0"
+        regexp: '(^#)?\*\s+hard\s+core\s+[0-9]+'
+        state: present
+        create: true
+        insertbefore: "# End of file"
+    - name: 1.6.4 Ensure core dumps are restricted | apt
+      apt:
+        name: systemd-coredump
+        state: present
+    - name: 1.6.4 Ensure core dumps are restricted | coredump.conf
+      lineinfile:
+        dest: /etc/systemd/coredump.conf
+        line: "Storage=none"
+        regexp: '(^#)?\s*Storage\s*='
+        state: present
+        create: true
+        insertbefore: "# End of file"
+    - name: 1.6.4 Ensure core dumps are restricted | coredump.conf
+      lineinfile:
+        dest: /etc/systemd/coredump.conf
+        line: "ProcessSizeMax=0"
+        regexp: '(^#)?\s*ProcessSizeMax\s*='
+        state: present
+        create: true
+        insertbefore: "# End of file"
+    - name: 1.6.4 Ensure core dumps are restricted | reload
+      shell: systemctl daemon-reload
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.6.4
+# 1.7 Mandatory Access Control
+# Mandatory Access Control (MAC) provides an additional layer of access restrictions to
+# processes on top of the base Discretionary Access Controls. By restricting how processes
+# can access files and resources on a system the potential impact from vulnerabilities in the
+# processes can be reduced.
+# Impact: Mandatory Access Control limits the capabilities of applications and daemons on a
+# system, while this can prevent unauthorized access the configuration of MAC can be complex
+# and difficult to implement correctly preventing legitimate access from occurring.
+# 1.7.1 Configure AppArmor
+# 1.7.1.1 Ensure AppArmor is installed
+# AppArmor provides Mandatory Access Controls.
+- name: 1.7.1.1 Ensure AppArmor is installed
+  apt:
+    name: ["apparmor"]
+    state: present
+  when: install_apparmor
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.7.1.1
+# 1.7.1.2 Ensure AppArmor is enabled in the bootloader configuration
+# Configure AppArmor to be enabled at boot time and verify that it has not been overwritten
+# by the bootloader boot parameters.
+# Note: This recommendation is designed around the grub bootloader, if LILO or another
+# bootloader is in use in your environment enact equivalent settings.
+- name: 1.7.1.2 Ensure AppArmor is enabled in the bootloader configuration
+  block:
+    - name: 1.7.1.2 Ensure AppArmor is enabled in the bootloader configuration
+      replace:
+        path: /etc/default/grub
+        regexp: '^(GRUB_CMDLINE_LINUX=(?!.*apparmor)\"[^\"]*)(\".*)'
+        replace: '\1 apparmor=1 security=apparmor\2'
+      register: output_1_7_1_2
+    - name: 1.7.1.2 Ensure AppArmor is enabled in the bootloader configuration | reload
+      shell: |
+        update-grub
+      when: output_1_7_1_2  | bool
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.7.1.2
+# 1.7.1.3 Ensure all AppArmor Profiles are in enforce or complain mode
+# AppArmor profiles define what resources applications are able to access.
+- name: 1.7.1.3 Ensure all AppArmor Profiles are in enforce or complain mode
+    1.7.1.4 Ensure all AppArmor Profiles are enforcing"
+  shell: |
+    find /etc/apparmor.d -maxdepth 1 -type f | while read file
+    do
+      if grep --quiet "flags\s*=.*complain" "$file"; then
+        aa-enforce "$file"
+      fi
+    done
+  tags:
+    - section1
+    - level_2_server
+    - level_2_workstation
+    - 1.7.1.3
+    - 1.7.1.4
+# 1.8 Warning Banners
+# Presenting a warning message prior to the normal user login may assist in the prosecution
+# of trespassers on the computer system. Changing some of these login banners also has the
+# side effect of hiding OS version information and other detailed system information from
+# attackers attempting to target specific exploits at a system.
+# 1.8.1 Command Line Warning Banners
+# The /etc/motd , /etc/issue , and /etc/issue.net files govern warning banners for
+# standard command line logins for both local and remote users.
+# 1.8.1.1 Ensure message of the day is configured properly
+# The contents of the /etc/motd file are displayed to users after login and function as a
+# message of the day for authenticated users.
+# Unix-based systems have typically displayed information about the OS release and patch
+# level upon logging in to the system. This information can be useful to developers who are
+# developing software for a particular OS platform. If mingetty(8) supports the following
+# options, they display operating system information: \m - machine architecture \r -
+# operating system release \s - operating system name \v - operating system version
+
+# We allow overwriting the default motd message (contained in files/templates/motd.j2) by a custom template, whose path
+# has to be defined in the variable "custom_motd_file_path".
+- name: 1.8.1.1 Ensure message of the day is configured properly
+    1.8.1.4 Ensure permissions on /etc/motd are configured"
+  template:
+    src: "{{ lookup('first_found', motd, errors='ignore') }}"
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: "u-x,go-wx"
+  vars:
+    - motd:
+      - "{{ custom_motd_file_path }}"
+      - "files/templates/motd.j2"
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.8.1.1
+    - 1.8.1.4
+# 1.8.1.2 Ensure local login warning banner is configured properly
+- name: 1.8.1.2 Ensure local login warning banner is configured properly
+    1.8.1.5 Ensure permissions on /etc/issue are configured"
+  template:
+    src: files/templates/issue.j2
+    dest: /etc/issue
+    owner: root
+    group: root
+    mode: "u-x,go-wx"
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.8.1.2
+    - 1.8.1.5
+# 1.8.1.3 Ensure remote login warning banner is configured properly
+- name: 1.8.1.3 Ensure remote login warning banner is configured properly
+    1.8.1.6 Ensure permissions on /etc/issue.net are configured"
+  template:
+    src: files/templates/issue.net.j2
+    dest: /etc/issue.net
+    owner: root
+    group: root
+    mode: "u-x,go-wx"
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - 1.8.1.3
+    - 1.8.1.6
+# 1.9 Ensure updates, patches, and additional security software are installed
+- name: 1.9 Ensure updates, patches, and additional security software are installed
+  apt:
+    upgrade: dist
+  ignore_errors: yes
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - "1.9"
+# 1.10 Ensure GDM is removed or login is configured
+- name: 1.10 Ensure GDM is removed or login is configured
+  template:
+    src: files/templates/greeter.dconf-defaults.j2
+    dest: /etc/gdm3/greeter.dconf-defaults
+  ignore_errors: yes
+  tags:
+    - section1
+    - level_1_server
+    - level_1_workstation
+    - "1.10"

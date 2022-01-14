@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  become: yes
+
+  tasks:
+    - name: including ubuntu hardening role
+      include_role:
+        name: ubuntu-cis-hardening

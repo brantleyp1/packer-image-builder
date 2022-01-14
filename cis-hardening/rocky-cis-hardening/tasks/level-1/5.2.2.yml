@@ -1,0 +1,73 @@
+# Standards: 0.11
+---
+
+# 5.2.2 - Ensure SSH Protocol is set to 2
+
+- include: stat_sshd_config.yml
+  tags:
+    - level-1
+    - section-5
+    - "5.2.2"
+    - scored
+
+- name: 5.2.2 - Ensure SSH Protocol is set to 2
+  lineinfile:
+    regexp: "^Protocol\\s+"
+    line: "Protocol 2"
+    dest: "/etc/ssh/sshd_config"
+  notify: "Restart sshd"
+  when: sshd_config.stat.exists
+  tags:
+    - level-1
+    - section-5
+    - "5.2.2"
+    - scored
+
+- name: 5.2.2.1 - Ensure SSH is running on port 22
+  lineinfile:
+    regexp: "^#Port\\s+"
+    line: "Port 22"
+    dest: "/etc/ssh/sshd_config"
+  notify: "Restart sshd"
+  when: sshd_config.stat.exists
+  tags:
+    - level-1
+    - section-5
+    - "5.2.2"
+    - scored
+
+- name: 5.2.2.2 - Ensure SSH is running on port 1981
+  lineinfile:
+    insertafter: "^Port 22"
+    line: "Port 1981"
+    dest: "/etc/ssh/sshd_config"
+  notify: "Restart sshd"
+  when: sshd_config.stat.exists
+  tags:
+    - level-1
+    - section-5
+    - "5.2.2"
+    - scored
+
+- name: 5.2.2.3 - Add SELinux context for 1981
+  seport:
+    ports: 1981
+    proto: tcp
+    setype: ssh_port_t
+    state: present
+  tags:
+    - level-1
+    - section-5
+    - "5.2.2"
+    - scored
+
+#- name: 5.2.2.3 - Add semanage for 1981
+#  command: "semanage port -a -t ssh_port_t -p tcp 1981"
+#  notify: "Restart sshd"
+#  when: sshd_config.stat.exists
+#  changed_when: false
+#  tags:
+#    - level-1
+#    - section-5
+#    - "5.2.2"
+#    - scored

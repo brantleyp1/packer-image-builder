@@ -1,0 +1,36 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  become: yes
+
+  tasks:
+    - name: including rocky hardening role
+      include_role:
+        name: rocky-cis-hardening
+
+      vars:
+        cis_target_os_versions:
+          - "8.0"
+          - "8.1"
+          - "8.2"
+          - "8.3"
+          - "8.4"
+          - "8.5"
+        cis_chrony_servers: |+
+          server time.example.net iburst
+        cis_enable_ntp: false
+        cis_enable_chrony: true
+        cis_level_1_exclusions: |+
+          3.4.1
+          3.4.2
+          3.4.3
+          3.4.4
+          3.4.5
+          5.3.2
+          5.3.3
+          5.3.4
+          5.4.2
+          5.4.3
+          6.2.1
+          #5.2.15

@@ -1,0 +1,510 @@
+---
+# 2 Services
+# 2.1 inetd Services
+# 2.1.1 Ensure xinetd is not installed
+# The eXtended InterNET Daemon ( xinetd ) is an open source super daemon that replaced
+# the original inetd daemon. The xinetd daemon listens for well known services and
+# dispatches the appropriate daemon to properly respond to service requests.
+- name: 2.1.1 Ensure xinetd is not installed
+  apt:
+    name: xinetd
+    state: absent
+  when: remove_xinetd
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.1.1
+# 2.1.2 Ensure openbsd-inetd is not installed
+# The inetd daemon listens for well known services and dispatches the appropriate daemon
+# to properly respond to service requests.
+- name: 2.1.2 Ensure openbsd-inetd is not installed
+  apt:
+    name: openbsd-inetd
+    state: absent
+  when: remove_openbsd_inetd
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.1.2
+# 2.2 Special Purpose Services
+# 2.2.1 Time Synchronization
+# If access to a physical host's clock is available and configured according to site policy,
+# this section can be skipped
+# Only one time synchronization method should be in use on the system
+# Only the section related to the time synchronization method in use on the system
+# should be followed, all other time synchronization recommendations should be skipped
+# If access to a physical host's clock is available and configured according to site policy,
+# systemd-timesyncd should be stopped and masked
+# 2.2.1.1 Ensure time synchronization is in use
+# System time should be synchronized between all systems in an environment. This is
+# typically done by establishing an authoritative time server or set of servers and having all
+# systems synchronize their clocks to them.
+# If access to a physical host's clock is available and configured according to site policy,
+# this section can be skipped
+# Only one time synchronization method should be in use on the system
+# If access to a physical host's clock is available and configured according to site policy,
+# systemd-timesyncd should be stopped and masked
+- name: 2.2.1.1 Ensure time synchronization is in use
+  block:
+    - name: 2.2.1.1 Ensure time synchronization is in use - service install
+      apt:
+        name: ["ntp"]
+        state: present
+        install_recommends: false
+    - name: 2.2.1.1 Ensure time synchronization is in use - service start
+      service:
+        name: "ntp"
+        state: started
+        enabled: true
+  when: "{{enableNTP}}"
+
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.1.1
+# 2.2.1.2 Ensure systemd-timesyncd is configured
+# The systemd-timesyncd service specifically implements only SNTP. This minimalistic
+# service will set the system clock for large offsets or slowly adjust it for smaller deltas.
+# More complex use cases are not covered by systemd-timesyncd
+# If chrony or ntp are used, systemd-timesyncd should be stopped and masked, and this
+# section skipped
+# This recommendation only applies if timesyncd is in use on the system
+# Only one time synchronization method should be in use on the system
+- name: 2.2.1.2 Ensure systemd-timesyncd is configured
+  block:
+    - name: 2.2.1.2 Ensure systemd-timesyncd is configured | install systemd-timesyncd
+      apt:
+         name: systemd-timesyncd
+         state: present
+    - name: 2.2.1.2 Ensure systemd-timesyncd is configured | set timezone
+      timezone:
+        name: "{{ timesync_timezone }}"
+    - name: 2.2.1.2 Ensure systemd-timesyncd is configured | Configure systemd-timesyncd
+      template:
+        src:  files/templates/timesyncd.conf.j2
+        dest: /etc/systemd/timesyncd.conf
+        mode: 0644
+        owner: root
+        group: root
+      notify: reloadTimesyncd
+    - name: 2.2.1.2 Ensure systemd-timesyncd is configured | Start and enable systemd-timesyncd
+      service:
+        name: systemd-timesyncd.service
+        enabled: yes
+        state: started
+  when: "{{enable_systemdtimesyncd}} == True"
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.1.2
+# 2.2.1.3 Ensure chrony is configured
+- name: 2.2.1.3 Ensure chrony is configured
+  block:
+    - name: 2.2.1.3 Ensure chrony is configured | Install Chrony
+      apt:
+        name: "chrony"
+        state: present
+    - name: 2.2.1.3 Ensure chrony is configured | Start Chrony service
+      service:
+        name: "chrony"
+        state: started
+        enabled: yes
+    - name: 2.2.1.3 Ensure chrony is configured | Generate configuration
+      template:
+        src: files/templates/chrony.conf.j2
+        dest: "/etc/chrony/chrony.conf"
+        owner: root
+        group: root
+        mode: 0644
+      notify: RestartChronyservice
+  when: "{{chronyEnable}} == True"
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.1.3
+# 2.2.1.4 Ensure ntp is configured
+# ntp is a daemon which implements the Network Time Protocol (NTP). It is designed to
+# synchronize system clocks across a variety of systems and use a source that is highly
+# accurate. More information on NTP can be found at http://www.ntp.org. ntp can be
+# configured to be a client and/or a server.
+- name: 2.2.1.4 Ensure ntp is configured
+  block:
+    - name: Check if NTP is installed
+      package_facts:
+        manager: "auto"
+    - name: 2.2.1.4 Ensure ntp is configured | modify /etc/ntp.conf
+      template:
+        src: files/templates/ntp.conf.j2
+        dest: /etc/ntp.conf
+        owner: root
+        group: root
+        mode: 0644
+      when: "'ntp' in ansible_facts.packages"
+    - name: 2.2.1.4 Ensure ntp is configured | modify /etc/init.d/ntp
+      lineinfile:
+        dest: /etc/init.d/ntp
+        regexp: "^RUNASUSER"
+        line: "RUNASUSER=ntp"
+      when: "'ntp' in ansible_facts.packages"
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.1.4
+# 2.2.2 Ensure X Window System is not installed
+# Many Linux systems run applications which require a Java runtime. Some Linux Java
+# packages have a dependency on specific X Windows xorg-x11-fonts. One workaround to
+# avoid this dependency is to use the "headless" Java packages for your specific Java runtime,
+# if provided by your distribution.
+- name: 2.2.2 Ensure X Window System is not installed
+  apt:
+    name: ["xserver-xorg*"]
+    state: absent
+  when: remove_XWindowSystem
+  tags:
+    - section2
+    - level_1_server
+    - 2.2.2
+# 2.2.3 Ensure Avahi Server is not installed
+# Avahi is a free zeroconf implementation, including a system for multicast DNS/DNS-SD
+# service discovery. Avahi allows programs to publish and discover services and hosts
+# running on a local network with no specific configuration. For example, a user can plug a
+# computer into a network and Avahi automatically finds printers to print to, files to look at
+# and people to talk to, as well as network services running on the machine.
+- name: 2.2.3 Ensure Avahi Server is not installed
+  apt:
+    name: avahi-daemon
+    state: absent
+  when: remove_AvahiServer
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.3
+# 2.2.4 Ensure CUPS is not installed
+# The Common UNIX Print System (CUPS) provides the ability to print to both local and
+# network printers. A system running CUPS can also accept print jobs from remote systems
+# and print them to local printers. It also provides a web based remote administration
+# capability.
+# Removing CUPS will prevent printing from the system, a common task for workstation systems.
+- name: 2.2.4 Ensure CUPS is not installed
+  apt:
+    name: cups
+    state: absent
+  when: remove_CUPS
+  tags:
+    - section2
+    - level_1_server
+    - level_2_workstation
+    - 2.2.4
+# 2.2.5 Ensure DHCP Server is not
+# The Dynamic Host Configuration Protocol (DHCP) is a service that allows machines to be
+# dynamically assigned IP addresses.
+- name: 2.2.5 Ensure DHCP Server is not installed
+  apt:
+    name: isc-dhcp-server
+    state: absent
+  when: remove_DHCPServer
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.5
+# 2.2.6 Ensure LDAP server is not installed
+# The Lightweight Directory Access Protocol (LDAP) was introduced as a replacement for
+# NIS/YP. It is a service that provides a method for looking up information from a central
+# database.
+- name: 2.2.6 Ensure LDAP server is not installed
+  apt:
+    name: slapd
+    state: absent
+  when: remove_LDAPserver
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.6
+# 2.2.7 Ensure NFS is not installed
+# The Network File System (NFS) is one of the first and most widely distributed file systems
+# in the UNIX environment. It provides the ability for systems to mount file systems of other
+# servers through the network.
+- name: 2.2.7 Ensure NFS is not installed
+  apt:
+    name: rpcbind
+    state: absent
+  when: remove_NFS
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.7
+# 2.2.8 Ensure DNS Server is not installed
+# The Domain Name System (DNS) is a hierarchical naming system that maps names to IP
+# addresses for computers, services and other resources connected to a network.
+- name: 2.2.8 Ensure DNS Server is not installed
+  apt:
+    name: bind9
+    state: absent
+  when: remove_DNSServer
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.8
+# 2.2.9 Ensure FTP Server is not installed
+# The File Transfer Protocol (FTP) provides networked computers with the ability to transfer
+# files.
+# Note: Additional FTP servers also exist and should be audited.
+- name: 2.2.9 Ensure FTP Server is not installed
+  apt:
+    name: vsftpd
+    state: absent
+  when: remove_FTPServer
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.9
+# 2.2.10 Ensure HTTP server is not installed
+# HTTP or web servers provide the ability to host web site content.
+# Note: Several httpd servers exist and can use other service names. apache2 and nginx are
+# example services that provide an HTTP server. These and other services should also be audited
+- name: 2.2.10 Ensure HTTP server is not installed
+  apt:
+    name: ["{{ web_server_name }}"]
+    state: absent
+  when: remove_HTTPserver
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.10
+# 2.2.11 Ensure IMAP and POP3 server are not installed
+# dovecot-imapd and dovecot-pop3d are an open source IMAP and POP3 server for Linux
+# based systems.
+# Note: Several IMAP/POP3 servers exist and can use other service names. courier-imap and
+# cyrus-imap are example services that provide a mail server. These and other services should
+# also be audited.
+- name: 2.2.11 Ensure IMAP and POP3 server are not installed
+  apt:
+    name: ["dovecot-imapd", "dovecot-pop3d"]
+    state: absent
+  when: remove_IMAPandPOP3server
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.11
+# 2.2.12 Ensure Samba is not installed
+# The Samba daemon allows system administrators to configure their Linux systems to share
+# file systems and directories with Windows desktops. Samba will advertise the file systems
+# and directories via the Server Message Block (SMB) protocol. Windows desktop users will
+# be able to mount these directories and file systems as letter drives on their systems.
+- name: 2.2.12 Ensure Samba is not installed
+  apt:
+    name: samba
+    state: absent
+  when: remove_Samba
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.12
+# 2.2.13 Ensure HTTP Proxy Server is not installed
+# Squid is a standard proxy server used in many distributions and environments.
+# Note: Several HTTP proxy servers exist. These and other services should be checked
+- name: 2.2.13 Ensure HTTP Proxy Server is not installed
+  apt:
+    name: squid
+    state: absent
+  when: remove_HTTPProxyServer
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.13
+# 2.2.14 Ensure SNMP Server is not installed
+# Simple Network Management Protocol (SNMP) is a widely used protocol for monitoring the
+# health and welfare of network equipment, computer equipment and devices like UPSs.
+# Net-SNMP is a suite of applications used to implement SNMPv1 (RFC 1157), SNMPv2 (RFCs
+# 1901-1908), and SNMPv3 (RFCs 3411-3418) using both IPv4 and IPv6.
+# Support for SNMPv2 classic (a.k.a. "SNMPv2 historic" - RFCs 1441-1452) was dropped with
+# the 4.0 release of the UCD-snmp package.
+# The Simple Network Management Protocol (SNMP) server is used to listen for SNMP
+# commands from an SNMP management system, execute the commands or collect the
+# information and then send results back to the requesting system.
+- name: 2.2.14 Ensure SNMP Server is not installed
+  apt:
+    name: snmpd
+    state: absent
+  when: remove_SNMPServer
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.14
+# 2.2.15 Ensure mail transfer agent is configured for local-only mode
+# Mail Transfer Agents (MTA), such as sendmail and Postfix, are used to listen for incoming
+# mail and transfer the messages to the appropriate user or mail server. If the system is not
+# intended to be a mail server, it is recommended that the MTA be configured to only process
+# local mail.
+- name: 2.2.15 Ensure mail transfer agent is configured for local-only mode
+  block:
+    - name: 2.2.15 Ensure mail transfer agent is configured for local-only mode
+      stat:
+        path: /etc/postfix/main.cf
+      register: postfix
+    - name: 2.2.15 Ensure mail transfer agent is configured for local-only mode
+      lineinfile:
+        dest: /etc/postfix/main.cf
+        regexp: "^(#)?inet_interfaces"
+        line: "inet_interfaces = localhost"
+      when: postfix.stat.exists
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.15
+# 2.2.16 Ensure rsync service is not installed
+# The rsync service can be used to synchronize files between systems over network links.
+- name: 2.2.16 Ensure rsync service is not installed
+  apt:
+    name: rsync
+    state: absent
+  ignore_errors: yes
+  when: remove_rsyncservice
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.16
+# 2.2.17 Ensure NIS Server is not installed
+# The Network Information Service (NIS) (formally known as Yellow Pages) is a client-server
+# directory service protocol for distributing system configuration files. The NIS server is a
+# collection of programs that allow for the distribution of configuration files.
+- name: 2.2.17 Ensure NIS Server is not installed
+  apt:
+    name: nis
+    state: absent
+  when: remove_NISServer
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.2.17
+# 2.3 Service Clients
+# 2.3.1 Ensure NIS Client is not installed
+# The NIS service is inherently an insecure system that has been vulnerable to DOS attacks,
+# buffer overflows and has poor authentication for querying NIS maps. NIS generally has
+# been replaced by such protocols as Lightweight Directory Access Protocol (LDAP). It is
+# recommended that the service be removed.
+- name: 2.3.1 Ensure NIS Client is not installed
+  apt:
+    name: nis
+    state: absent
+  when: remove_NISClient
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.3.1
+# 2.3.2 Ensure rsh client is not installed
+# The rsh-client package contains the client commands for the rsh services.
+- name: 2.3.2 Ensure rsh client is not installed
+  apt:
+    name: rsh-client
+    state: absent
+  when: remove_rshclient
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.3.2
+# 2.3.3 Ensure talk client is not installed
+# The talk software makes it possible for users to send and receive messages across systems
+# through a terminal session. The talk client, which allows initialization of talk sessions, is
+# installed by default.
+- name: 2.3.3 Ensure talk client is not installed
+  apt:
+    name: talk
+    state: absent
+  when: remove_talkclient
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.3.3
+# 2.3.4 Ensure telnet client is not installed
+# The telnet package contains the telnet client, which allows users to start connections to
+# other systems via the telnet protocol.
+# Many insecure service clients are used as troubleshooting tools and in testing
+# environments. Uninstalling them can inhibit capability to test and troubleshoot. If they are
+# required it is advisable to remove the clients after use to prevent accidental or intentional
+# misuse.
+- name: 2.3.4 Ensure telnet client is not installed
+  apt:
+    name: telnet
+    state: absent
+  when: remove_telnetclient
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.3.4
+# 2.3.5 Ensure LDAP client is not installed
+# The Lightweight Directory Access Protocol (LDAP) was introduced as a replacement for
+# NIS/YP. It is a service that provides a method for looking up information from a central database.
+# Removing the LDAP client will prevent or inhibit using LDAP for authentication in your
+# environment.
+- name: 2.3.5 Ensure LDAP client is not installed
+  apt:
+    name: ldap-utils
+    state: absent
+  when: remove_LDAPclient
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.3.5
+# 2.3.6 Ensure RPC is not installed
+# Remote Procedure Call (RPC) is a method for creating low level client server applications
+# across different system architectures. It requires an RPC compliant client listening on a
+# network port. The supporting package is rpcbind."
+- name: 2.3.6 Ensure RPC is not installed
+  apt:
+    name: rpcbind
+    state: absent
+  when: remove_RPC
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - 2.3.6
+# 2.4 Ensure nonessential services are removed or masked
+- name: 2.4 Ensure nonessential services are removed or masked
+  debug:
+    msg: >
+      Run the following command:
+      $ lsof -i -P -n | grep -v "(ESTABLISHED)"
+        Review the output to ensure that all services listed are required on the system. If a listed
+        service is not required, remove the package containing the service. If the package
+        containing a non-essential service is required, stop and mask the non-essential service.
+        Code Meaning 
+        S File size differs. 
+        M File mode differs (includes permissions and file type). 
+        5 The MD5 checksum differs. 
+        D The major and minor version numbers differ on a device file. 
+        L A mismatch occurs in a link. 
+        U The file ownership differs. 
+        G The file group owner differs. 
+        T The file time (mtime) differs.
+  tags:
+    - section2
+    - level_1_server
+    - level_1_workstation
+    - diy

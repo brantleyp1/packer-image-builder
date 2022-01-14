@@ -1,0 +1,9 @@
+connection_username = "Administrator"
+os_version = "2019"
+os_family = "windows"
+guest_os_type = "windows2019srv_64Guest"
+guest_os_type_local = "windows2019srv-64"
+os_iso_path = "Seed/windows_server_2019_eval/windows_server_2019_eval.iso"
+os_iso_url = "/some/local/path/windows_server_2019_eval.iso"
+iso_checksum = "549bca46c055157291be6c22a3aaaed8330e78ef4382c99ee82c896426a1cee1"
+boot_command = ["<spacebar>"]

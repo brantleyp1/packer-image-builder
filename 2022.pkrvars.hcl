@@ -1,0 +1,9 @@
+connection_username = "Administrator"
+os_version = "2022"
+os_family = "windows"
+guest_os_type = "windows2019srvNext_64Guest"
+guest_os_type_local = "windows2019srvNext-64"
+os_iso_path = "Seed/windows_server_2022_eval/windows_server_2022_eval.iso"
+os_iso_url = "/some/local/path/windows_server_2022_eval.iso"
+iso_checksum = "4f1457c4fe14ce48c9b2324924f33ca4f0470475e6da851b39ccbf98f44e7852"
+boot_command = ["<spacebar>"]

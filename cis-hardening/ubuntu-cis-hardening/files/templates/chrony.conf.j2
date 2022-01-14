@@ -1,0 +1,59 @@
+# {{ ansible_managed }}
+
+driftfile {{ chrony_driftfile }}
+
+{% for server in chronyservers_preferred %}
+{% if server is search('pool') %}
+pool {{ server }} iburst prefer
+{% else %}
+server {{ server }} iburst prefer
+{% endif %}
+{% endfor %}
+{% for server in chronyservers %}
+{% if server is search('pool') %}
+pool {{ server }} iburst
+{% else %}
+server {{ server }} iburst
+{% endif %}
+{% endfor %}
+
+# Ignore stratum in source selection.
+stratumweight 0
+
+# Record the rate at which the system clock gains/losses time.
+driftfile {{ chrony_driftfile }}
+
+# Enable kernel RTC synchronization.
+rtcsync
+
+# This directive tells 'chronyd' to parse the 'adjtime' file to find out if the
+# real-time clock keeps local time or UTC. It overrides the 'rtconutc' directive.
+hwclockfile /etc/adjtime
+
+# In first three updates step the system clock instead of slew
+# if the adjustment is larger than 10 seconds.
+makestep 10 3
+
+# Stop bad estimates upsetting machine clock.
+maxupdateskew 100.0
+
+# Allow NTP client access from local network.
+#allow 192.168/16
+
+# Listen for commands only on localhost.
+bindcmdaddress 127.0.0.1
+bindcmdaddress ::1
+
+# Serve time even if not synchronized to any NTP server.
+#local stratum 10
+
+keyfile {{ chrony_keys }}
+
+# Disable logging of client accesses.
+noclientlog
+
+# Send a message to syslog if a clock adjustment is larger than 0.5 seconds.
+logchange 0.5
+
+logdir {{ chrony_log_dir }}
+#log measurements statistics tracking

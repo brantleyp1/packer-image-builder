@@ -1,0 +1,147 @@
+---
+# Defaults file for Auto-CIS-Ubuntu-Linux-20.04-LTS-Remediation
+
+# Section 1 settings
+disable_cramfs: yes
+disable_freevxfs: yes
+disable_jffs2: yes
+disable_hfs: yes
+disable_hfsplus: yes
+disable_udf: yes
+disable_fat: yes
+temp_dir_size: 1G
+## 1.5.1 Ensure bootloader password is set (using grub): default is no
+set_bootloader_credentials: yes
+### Update the default bootloader user and password
+bootloader_credentials: { user: "root", password: "SuperSecureBoot" }
+# 1.5.3 Ensure authentication required for single user mode
+set_root_password: yes
+root_password: SuperSecureRoot
+## 1.8.1.4 Ensure permissions on /etc/motd are configured: allow for custom motd template (if the file doesn't exist, the
+## default template in files/templates/motd.j2 will be used)
+custom_motd_file_path: "{{ inventory_dir }}/custom_templates/motd_custom.txt"
+
+# Section 2 Settings
+##Setting for systemd-timesyncd
+enable_systemdtimesyncd: no #If you enable this make sure to disable NTP below, only one time service must be run in the server
+timesync_timezone: Amierca/Chicago
+timesync_fallback_ntp_hosts:
+  - time.example.net
+
+## Settings for NTP
+enableNTP: yes
+time_synchronization_package_name: ntp
+time_synchronization_servers:
+  - uri: "time.example.net"
+    config: "iburst"
+
+## Settings for chrony
+chronyEnable: no
+chrony_driftfile: /var/lib/chrony/chrony.drift
+chronyservers_preferred: []
+chronyservers:
+  - time.example.net
+chrony_keys: /etc/chrony/chrony.keys
+chrony_log_dir: /var/log/chrony
+
+web_server_name: nginx
+remove_HTTPserver: no
+remove_xinetd: yes
+remove_openbsd_inetd: yes
+remove_XWindowSystem: yes
+remove_AvahiServer: yes
+remove_CUPS: yes
+remove_DHCPServer: yes
+remove_LDAPserver: yes
+remove_NFS: yes
+remove_DNSServer: yes
+remove_FTPServer: yes
+remove_IMAPandPOP3server: yes
+remove_Samba: yes
+remove_HTTPProxyServer: yes
+remove_SNMPServer: yes
+remove_rsyncservice: yes
+remove_NISServer: yes
+remove_NISClient: yes
+remove_rshclient: yes
+remove_talkclient: yes
+remove_telnetclient: yes
+remove_LDAPclient: yes
+remove_RPC: yes
+
+
+# Section 3 Settings
+disable_wifi: yes
+IPv6_is_enabled: no
+enable_firewall: yes
+## 3.5.1.6 Ensure firewall rules exist for all open ports | defined ports
+firewall_list_of_ports_to_allow:
+  - { rule: "allow", port: "1981", proto: "tcp" }
+  - { rule: "allow", port: "22", proto: "tcp" }
+## 3.5.1.6 Ensure firewall rules exist for all open ports | keep_alived
+firewall_allow_keep_alive: no
+
+# Section 4 Settings
+## Ensure rsyslog is configured to send logs to a remote log host
+remoteSyslog:
+  enable: true
+  host: 10.69.90.31
+  port: 1514
+  protocol: tcp
+logrotate_policy: "daily"
+## auditd config
+architecture: "x86_64"
+admin_space_left_action: halt
+max_log_file_action: rotate
+max_log_file: 20
+backlog_limit: "8192"
+space_left_action: syslog
+action_mail_acct: root
+grub_backlog_limit: 8192
+
+
+# Section 5 settings
+## 5.1.8 Ensure cron is restricted to authorized users
+allowd_hosts: "ALL: 0.0.0.0/0.0.0.0, 192.168.2.0/255.255.255.0"
+## 5.2.13 Ensure only strong MAC algorithms are used
+ssh_MACs: "hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256"
+## 5.2.14 Ensure only strong Key Exchange algorithms are used
+ssh_key_algorithms: "curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256"
+## 5.2.17 Ensure SSH access is limited
+#allowed_users: admin root #Put None or list of users space between each user
+allowed_users: None #Put None or list of users space between each user
+allowed_groups: sudo wheel unixusr
+deny_users: None
+deny_groups: None
+## 5.2.21 Ensure SSH MaxStartups is configured
+ssh_max_startups: "10:30:100"
+## 5.2.22 Ensure SSH MaxSessions is limited
+ssh_max_sessions: 10
+## 5.4.1.1 Ensure password expiration is 365 days or less
+pass_expire_in_days: 300
+pass_warn_age: 7
+pass_min_days: 1
+## 5.4.1.1 Ensure password expiration is 365 days or less
+list_of_os_users:
+  - ubuntu
+## 5.4.1.4 Ensure inactive password lock is 30 days or less
+##Note: A value of -1 would disable this setting
+account_inactive: 30
+## 5.4.5 Ensure default user shell timeout is 900 seconds or less
+shell_timeout_sec: 900
+
+# Section 5 PAM config
+usersAllowedToSuAccess:
+  - root
+adminGroup: root
+# Section 6
+
+# Section 6 settings
+withoutOwnerFileDirOwner: root
+withoutGroupFilesDirGroup: root
+outputfiles: /root/ #Output dir of some command
+disable_autofs: true
+disable_usb: true
+install_apparmor: true
+## 6.2.7 Ensure users' dot files are not group or world accessible
+fix_dot_file_permissions: yes
