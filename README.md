@@ -27,7 +27,7 @@ Ubuntu 18.04: `packer build --only vsphere-iso.ubuntu --var-file=18.04.pkrvars.h
 
 Windows Server 2019: `packer build --only vsphere-iso.windows --var-file=2019.pkrvars.hcl .`
 
-Rocky 8: `packer build -force --only vsphere-iso.windows --var-file=2019.pkrvars.hcl .`
+Rocky 8: `packer build -force --only vmware-iso.rocky --var-file=rocky8.pkrvars.hcl .`
 
 Note the trailing `.` at the end of the command.  That is telling packer to build everything in the current directory.  This is key for any `auto.pkrvars.hcl` to be automatically populated.
 
